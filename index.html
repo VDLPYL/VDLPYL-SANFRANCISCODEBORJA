@@ -16,121 +16,119 @@
 
     <!-- Formularios de inicio de sesión y registro -->
     <div id="auth-form" style="display: none;">
-        <input type="email" id="email" placeholder="Correo electrónico">
-        <input type="password" id="password" placeholder="Contraseña">
+        <input type="email" id="email" placeholder="Correo electrónico" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
         <button id="submit-btn">Enviar</button>
     </div>
 
     <script type="module">
-        window.onload = () => {
-            // Importar Firebase
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-            import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-            import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+        // Importar Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
-            // Configuración de Firebase
-            const firebaseConfig = {
-                apiKey: "AIzaSyAjOZEvWP1EsGxAmU5Zy2JvuSSiovkUJPw",
-                authDomain: "vdlpyl-sanfranciscodeborja.firebaseapp.com",
-                projectId: "vdlpyl-sanfranciscodeborja",
-                storageBucket: "vdlpyl-sanfranciscodeborja.appspot.com",
-                messagingSenderId: "401125990033",
-                appId: "1:401125990033:web:bc1e0bda0bcb5319af6930"
-            };
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjOZEvWP1EsGxAmU5Zy2JvuSSiovkUJPw",
+            authDomain: "vdlpyl-sanfranciscodeborja.firebaseapp.com",
+            projectId: "vdlpyl-sanfranciscodeborja",
+            storageBucket: "vdlpyl-sanfranciscodeborja.appspot.com",
+            messagingSenderId: "401125990033",
+            appId: "1:401125990033:web:bc1e0bda0bcb5319af6930"
+        };
 
-            // Inicializar Firebase
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-            // Referencias a los elementos HTML
-            const loginButton = document.getElementById("login-btn");
-            const registerButton = document.getElementById("register-btn");
-            const logoutButton = document.getElementById("logout-btn");
-            const welcomeMessage = document.getElementById("welcome-message");
-            const authForm = document.getElementById("auth-form");
-            const submitButton = document.getElementById("submit-btn");
-            const emailInput = document.getElementById("email");
-            const passwordInput = document.getElementById("password");
+        // Referencias a los elementos HTML
+        const loginButton = document.getElementById("login-btn");
+        const registerButton = document.getElementById("register-btn");
+        const logoutButton = document.getElementById("logout-btn");
+        const welcomeMessage = document.getElementById("welcome-message");
+        const authForm = document.getElementById("auth-form");
+        const submitButton = document.getElementById("submit-btn");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
 
-            // Verificar el estado del usuario
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    // Usuario autenticado
-                    welcomeMessage.textContent = `Bienvenido, ${user.email}`;
+        // Verificar el estado del usuario
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Usuario autenticado
+                welcomeMessage.textContent = `Bienvenido, ${user.email}`;
 
-                    // Guardar datos del usuario si no están en Firestore
-                    const userRef = doc(db, "users", user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (!userDoc.exists()) {
-                        // Si el documento no existe, lo creamos
-                        await setDoc(userRef, {
-                            email: user.email,
-                            name: user.displayName || "Sin nombre",
-                            createdAt: new Date()
-                        });
-                        console.log("Datos guardados en Firestore");
-                    }
-
-                    loginButton.style.display = "none";
-                    registerButton.style.display = "none";
-                    logoutButton.style.display = "block";
-                } else {
-                    // Usuario no autenticado
-                    welcomeMessage.textContent = "";
-                    loginButton.style.display = "block";
-                    registerButton.style.display = "block";
-                    logoutButton.style.display = "none";
+                // Guardar datos del usuario si no están en Firestore
+                const userRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists()) {
+                    // Si el documento no existe, lo creamos
+                    await setDoc(userRef, {
+                        email: user.email,
+                        name: user.displayName || "Sin nombre",
+                        createdAt: new Date()
+                    });
+                    console.log("Datos guardados en Firestore");
                 }
-            });
 
-            // Iniciar sesión
-            loginButton.addEventListener("click", () => {
-                authForm.style.display = "block";
-                submitButton.textContent = "Iniciar sesión";
+                loginButton.style.display = "none";
+                registerButton.style.display = "none";
+                logoutButton.style.display = "block";
+            } else {
+                // Usuario no autenticado
+                welcomeMessage.textContent = "";
+                loginButton.style.display = "block";
+                registerButton.style.display = "block";
+                logoutButton.style.display = "none";
+            }
+        });
 
-                submitButton.onclick = () => {
-                    const email = emailInput.value;
-                    const password = passwordInput.value;
-                    signInWithEmailAndPassword(auth, email, password)
-                        .then((userCredential) => {
-                            console.log("Inicio de sesión exitoso");
-                        })
-                        .catch((error) => {
-                            console.error("Error al iniciar sesión:", error);
-                        });
-                };
-            });
+        // Iniciar sesión
+        loginButton.addEventListener("click", () => {
+            authForm.style.display = "block";
+            submitButton.textContent = "Iniciar sesión";
 
-            // Registrarse
-            registerButton.addEventListener("click", () => {
-                authForm.style.display = "block";
-                submitButton.textContent = "Registrarse";
-
-                submitButton.onclick = () => {
-                    const email = emailInput.value;
-                    const password = passwordInput.value;
-                    createUserWithEmailAndPassword(auth, email, password)
-                        .then((userCredential) => {
-                            console.log("Registro exitoso");
-                        })
-                        .catch((error) => {
-                            console.error("Error al registrarse:", error);
-                        });
-                };
-            });
-
-            // Cerrar sesión
-            logoutButton.addEventListener("click", () => {
-                signOut(auth)
-                    .then(() => {
-                        console.log("Sesión cerrada exitosamente");
+            submitButton.onclick = () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("Inicio de sesión exitoso");
                     })
                     .catch((error) => {
-                        console.error("Error al cerrar sesión:", error);
+                        console.error("Error al iniciar sesión:", error);
                     });
-            });
-        }
+            };
+        });
+
+        // Registrarse
+        registerButton.addEventListener("click", () => {
+            authForm.style.display = "block";
+            submitButton.textContent = "Registrarse";
+
+            submitButton.onclick = () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("Registro exitoso");
+                    })
+                    .catch((error) => {
+                        console.error("Error al registrarse:", error);
+                    });
+            };
+        });
+
+        // Cerrar sesión
+        logoutButton.addEventListener("click", () => {
+            signOut(auth)
+                .then(() => {
+                    console.log("Sesión cerrada exitosamente");
+                })
+                .catch((error) => {
+                    console.error("Error al cerrar sesión:", error);
+                });
+        });
     </script>
 </body>
 </html>
