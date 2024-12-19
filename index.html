@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAN FRANCISCO DE BORJA</title>
+    <!-- Firebase -->
+    <script type="module">
+        // Importar Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjOZEvWP1EsGxAmU5Zy2JvuSSiovkUJPw",
+            authDomain: "vdlpyl-sanfranciscodeborja.firebaseapp.com",
+            projectId: "vdlpyl-sanfranciscodeborja",
+            storageBucket: "vdlpyl-sanfranciscodeborja.appspot.com",
+            messagingSenderId: "401125990033",
+            appId: "1:401125990033:web:bc1e0bda0bcb5319af6930"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        console.log("Firebase conectado con el proyecto VDLPYL-SANFRANCISCODEBORJA");
+    </script>
+</head>
+<body>
+    <h1>Bienvenido a SAN FRANCISCO DE BORJA</h1>
+</body>
+</html>
