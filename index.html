@@ -8,7 +8,7 @@
     <script type="module">
         // Importar Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
@@ -25,9 +25,44 @@
         const db = getFirestore(app);
 
         console.log("Firebase conectado con el proyecto VDLPYL-SANFRANCISCODEBORJA");
+
+        // Guardar un dato en Firestore
+        async function guardarDato() {
+            try {
+                await setDoc(doc(db, "saludos", "mensaje1"), {
+                    texto: "¡Bienvenido a SAN FRANCISCO DE BORJA!"
+                });
+                console.log("Dato guardado exitosamente.");
+            } catch (error) {
+                console.error("Error al guardar el dato:", error);
+            }
+        }
+
+        // Mostrar un dato desde Firestore
+        async function mostrarDato() {
+            try {
+                const docRef = doc(db, "saludos", "mensaje1");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById("mensaje").textContent = data.texto;
+                    console.log("Dato mostrado exitosamente:", data.texto);
+                } else {
+                    console.log("No se encontró el documento.");
+                }
+            } catch (error) {
+                console.error("Error al mostrar el dato:", error);
+            }
+        }
+
+        // Llamar a las funciones al cargar la página
+        guardarDato();
+        mostrarDato();
     </script>
 </head>
 <body>
     <h1>Bienvenido a SAN FRANCISCO DE BORJA</h1>
+    <p id="mensaje">Cargando mensaje...</p>
 </body>
 </html>
