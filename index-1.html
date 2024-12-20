@@ -4,24 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VDLPYL - San Francisco de Borja</title>
-    <link rel="stylesheet" type="text/css" href="index.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        #auth-form, #messaging {
-            margin-top: 20px;
-        }
-        input, textarea, button {
-            display: block;
-            margin-bottom: 10px;
-        }
-        textarea {
-            width: 100%;
-            height: 50px;
-        }
-    </style>
 </head>
 <body>
     <!-- Mensaje de bienvenida -->
@@ -181,101 +163,6 @@
                     console.error("Error al cerrar sesión:", error.message);
                 });
         });
-
-
-
-
-
-        import { collection, addDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
-
-// Referencias a los elementos HTML
-const messagingDiv = document.getElementById("messaging");
-const receiverEmailInput = document.getElementById("receiver-email");
-const messageTextInput = document.getElementById("message-text");
-const sendMessageButton = document.getElementById("send-message-btn");
-const receivedMessagesDiv = document.getElementById("received-messages");
-
-// Mostrar el área de mensajería cuando el usuario está autenticado
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        messagingDiv.style.display = "block";
-
-        // Escuchar mensajes recibidos en tiempo real
-        const messagesRef = collection(db, "messages");
-        const messagesQuery = query(messagesRef, where("receiverId", "==", user.uid));
-        onSnapshot(messagesQuery, (snapshot) => {
-            receivedMessagesDiv.innerHTML = ""; // Limpiar mensajes anteriores
-            snapshot.forEach((doc) => {
-                const message = doc.data();
-                const messageElement = document.createElement("p");
-                messageElement.textContent = `${message.message} (De: ${message.senderId})`;
-                receivedMessagesDiv.appendChild(messageElement);
-            });
-        });
-    } else {
-        messagingDiv.style.display = "none";
-    }
-});
-
-// Enviar mensaje
-sendMessageButton.addEventListener("click", async () => {
-    const receiverEmail = receiverEmailInput.value;
-    const messageText = messageTextInput.value;
-
-    if (!receiverEmail || !messageText) {
-        alert("Por favor, completa todos los campos.");
-        return;
-    }
-
-    try {
-        // Buscar el UID del destinatario a partir del correo electrónico
-        const usersRef = collection(db, "users");
-        const userQuery = query(usersRef, where("email", "==", receiverEmail));
-        const querySnapshot = await getDocs(userQuery);
-
-        if (querySnapshot.empty) {
-            alert("El usuario destinatario no existe.");
-            return;
-        }
-
-        const receiverDoc = querySnapshot.docs[0];
-        const receiverId = receiverDoc.id;
-
-        // Guardar el mensaje en Firestore
-        const messagesRef = collection(db, "messages");
-        await addDoc(messagesRef, {
-            senderId: auth.currentUser.uid,
-            receiverId: receiverId,
-            message: messageText,
-            timestamp: new Date()
-        });
-
-        alert("Mensaje enviado con éxito.");
-        messageTextInput.value = ""; // Limpiar el campo de texto
-    } catch (error) {
-        console.error("Error al enviar el mensaje:", error);
-    }
-});
-
-
-
     </script>
-
-
-
-
-
-
-
-<!-- Área para enviar mensajes -->
-<div id="messaging" style="display: none;">
-    <h3>Enviar un mensaje</h3>
-    <input type="email" id="receiver-email" placeholder="Correo del destinatario">
-    <textarea id="message-text" placeholder="Escribe tu mensaje"></textarea>
-    <button id="send-message-btn">Enviar mensaje</button>
-
-    <h3>Mensajes recibidos</h3>
-    <div id="received-messages"></div>
-</div>
 </body>
 </html>
